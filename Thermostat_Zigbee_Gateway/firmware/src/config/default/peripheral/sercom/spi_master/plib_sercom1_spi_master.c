@@ -170,18 +170,11 @@ bool SERCOM1_SPI_TransferSetup(SPI_TRANSFER_SETUP *setup, uint32_t spiSourceCloc
         /* Do nothing */
     }
 
-       if(setup != NULL)
+    if(setup != NULL)
     {
         if (setup->clockFrequency <= spiSourceClock/2U)
         {
-            if (setup->clockFrequency == 0)
-            {
-                baudValue = SERCOM1_SPIM_BAUD_VALUE;
-            }
-            else
-            {
-                baudValue = (spiSourceClock/(2U*(setup->clockFrequency))) - 1U;
-            }
+            baudValue = (spiSourceClock/(2U*(setup->clockFrequency))) - 1U;
 
             /* Set the lowest possible baud */
             if (baudValue >= 255U)
@@ -341,120 +334,120 @@ bool SERCOM1_SPI_WriteRead (void* pTransmitData, size_t txSize, void* pReceiveDa
 
     if (sercom1SPIObj.transferIsBusy == false)
     {
-    /* Verify the request */
+        /* Verify the request */
         if(((txSize > 0U) && (pTransmitData != NULL)) || ((rxSize > 0U) && (pReceiveData != NULL)))
-    {
-        if((SERCOM1_REGS->SPIM.SERCOM_CTRLB & SERCOM_SPIM_CTRLB_CHSIZE_Msk) == (uint32_t)SPI_DATA_BITS_9)
         {
-            /* For 9-bit transmission, the txSize and rxSize must be an even number. */
-            if(((txSize > 0U) && ((txSize & 0x01U) != 0U)) || ((rxSize > 0U) && ((rxSize & 0x01U) != 0U)))
+            if((SERCOM1_REGS->SPIM.SERCOM_CTRLB & SERCOM_SPIM_CTRLB_CHSIZE_Msk) == (uint32_t)SPI_DATA_BITS_9)
             {
-                return isRequestAccepted;
+                /* For 9-bit transmission, the txSize and rxSize must be an even number. */
+                if(((txSize > 0U) && ((txSize & 0x01U) != 0U)) || ((rxSize > 0U) && ((rxSize & 0x01U) != 0U)))
+                {
+                    return isRequestAccepted;
+                }
             }
-        }
 
-        isRequestAccepted = true;
-        sercom1SPIObj.txBuffer = pTransmitData;
-        sercom1SPIObj.rxBuffer = pReceiveData;
-        sercom1SPIObj.rxCount = 0U;
-        sercom1SPIObj.txCount = 0U;
-        sercom1SPIObj.dummySize = 0U;
+            isRequestAccepted = true;
+            sercom1SPIObj.txBuffer = pTransmitData;
+            sercom1SPIObj.rxBuffer = pReceiveData;
+            sercom1SPIObj.rxCount = 0U;
+            sercom1SPIObj.txCount = 0U;
+            sercom1SPIObj.dummySize = 0U;
 
-        if(pTransmitData != NULL)
-        {
-            sercom1SPIObj.txSize = txSize;
-        }
-        else
-        {
-            sercom1SPIObj.txSize = 0U;
-        }
+            if(pTransmitData != NULL)
+            {
+                sercom1SPIObj.txSize = txSize;
+            }
+            else
+            {
+                sercom1SPIObj.txSize = 0U;
+            }
 
-        if(pReceiveData != NULL)
-        {
-            sercom1SPIObj.rxSize = rxSize;
-        }
-        else
-        {
-            sercom1SPIObj.rxSize = 0U;
-        }
+            if(pReceiveData != NULL)
+            {
+                sercom1SPIObj.rxSize = rxSize;
+            }
+            else
+            {
+                sercom1SPIObj.rxSize = 0U;
+            }
 
-        sercom1SPIObj.transferIsBusy = true;
+            sercom1SPIObj.transferIsBusy = true;
 
-        /* Flush out any unread data in SPI read buffer */
-        while((SERCOM1_REGS->SPIM.SERCOM_INTFLAG & SERCOM_SPIM_INTFLAG_RXC_Msk) == SERCOM_SPIM_INTFLAG_RXC_Msk)
-        {
-            dummyData = SERCOM1_REGS->SPIM.SERCOM_DATA;
-            (void)dummyData;
-        }
+            /* Flush out any unread data in SPI read buffer */
+            while((SERCOM1_REGS->SPIM.SERCOM_INTFLAG & SERCOM_SPIM_INTFLAG_RXC_Msk) == SERCOM_SPIM_INTFLAG_RXC_Msk)
+            {
+                dummyData = SERCOM1_REGS->SPIM.SERCOM_DATA;
+                (void)dummyData;
+            }
 
-        SERCOM1_REGS->SPIM.SERCOM_STATUS |= SERCOM_SPIM_STATUS_BUFOVF_Msk;
+            SERCOM1_REGS->SPIM.SERCOM_STATUS |= SERCOM_SPIM_STATUS_BUFOVF_Msk;
 
-        SERCOM1_REGS->SPIM.SERCOM_INTFLAG |= (uint8_t)SERCOM_SPIM_INTFLAG_ERROR_Msk;
+            SERCOM1_REGS->SPIM.SERCOM_INTFLAG |= (uint8_t)SERCOM_SPIM_INTFLAG_ERROR_Msk;
 
             txSz = sercom1SPIObj.txSize;
 
             if(sercom1SPIObj.rxSize > txSz)
-        {
+            {
                 sercom1SPIObj.dummySize = sercom1SPIObj.rxSize - txSz;
-        }
-
-        /* Start the first write here itself, rest will happen in ISR context */
-        if((SERCOM1_REGS->SPIM.SERCOM_CTRLB & SERCOM_SPIM_CTRLB_CHSIZE_Msk) == (uint32_t)SPI_DATA_BITS_8)
-        {
-                if(sercom1SPIObj.txCount < txSz)
-            {
-                SERCOM1_REGS->SPIM.SERCOM_DATA = *((uint8_t*)sercom1SPIObj.txBuffer);
-
-                sercom1SPIObj.txCount++;
             }
-            else if(sercom1SPIObj.dummySize > 0U)
-            {
-                SERCOM1_REGS->SPIM.SERCOM_DATA = 0xFFU;
 
-                sercom1SPIObj.dummySize--;
+            /* Start the first write here itself, rest will happen in ISR context */
+            if((SERCOM1_REGS->SPIM.SERCOM_CTRLB & SERCOM_SPIM_CTRLB_CHSIZE_Msk) == (uint32_t)SPI_DATA_BITS_8)
+            {
+                if(sercom1SPIObj.txCount < txSz)
+                {
+                    SERCOM1_REGS->SPIM.SERCOM_DATA = *((uint8_t*)sercom1SPIObj.txBuffer);
+
+                    sercom1SPIObj.txCount++;
+                }
+                else if(sercom1SPIObj.dummySize > 0U)
+                {
+                    SERCOM1_REGS->SPIM.SERCOM_DATA = 0xFFU;
+
+                    sercom1SPIObj.dummySize--;
+                }
+                else
+                {
+                    /* Do nothing */
+                }
             }
             else
             {
-                /* Do nothing */
-            }
-        }
-        else
-        {
-            sercom1SPIObj.txSize >>= 1U;
-            sercom1SPIObj.dummySize >>= 1U;
-            sercom1SPIObj.rxSize >>= 1U;
+                sercom1SPIObj.txSize >>= 1U;
+                sercom1SPIObj.dummySize >>= 1U;
+                sercom1SPIObj.rxSize >>= 1U;
 
                 txSz = sercom1SPIObj.txSize;
 
                 if(sercom1SPIObj.txCount < txSz)
-            {
-                SERCOM1_REGS->SPIM.SERCOM_DATA = *((uint16_t*)sercom1SPIObj.txBuffer) & SERCOM_SPIM_DATA_Msk;
+                {
+                    SERCOM1_REGS->SPIM.SERCOM_DATA = *((uint16_t*)sercom1SPIObj.txBuffer) & SERCOM_SPIM_DATA_Msk;
 
-                sercom1SPIObj.txCount++;
+                    sercom1SPIObj.txCount++;
+                }
+                else if(sercom1SPIObj.dummySize > 0U)
+                {
+                    SERCOM1_REGS->SPIM.SERCOM_DATA = 0xFFFFU & SERCOM_SPIM_DATA_Msk;
+
+                    sercom1SPIObj.dummySize--;
+                }
+                else
+                {
+                    /* Do nothing */
+                }
             }
-            else if(sercom1SPIObj.dummySize > 0U)
-            {
-                SERCOM1_REGS->SPIM.SERCOM_DATA = 0xFFFFU & SERCOM_SPIM_DATA_Msk;
 
-                sercom1SPIObj.dummySize--;
+            if(rxSize > 0U)
+            {
+                /* Enable ReceiveComplete  */
+                SERCOM1_REGS->SPIM.SERCOM_INTENSET = (uint8_t)SERCOM_SPIM_INTENSET_RXC_Msk;
             }
             else
             {
-                /* Do nothing */
+                /* Enable the DataRegisterEmpty  */
+                SERCOM1_REGS->SPIM.SERCOM_INTENSET = (uint8_t)SERCOM_SPIM_INTENSET_DRE_Msk;
             }
         }
-
-        if(rxSize > 0U)
-        {
-            /* Enable ReceiveComplete  */
-            SERCOM1_REGS->SPIM.SERCOM_INTENSET = (uint8_t)SERCOM_SPIM_INTENSET_RXC_Msk;
-        }
-        else
-        {
-            /* Enable the DataRegisterEmpty  */
-            SERCOM1_REGS->SPIM.SERCOM_INTENSET = (uint8_t)SERCOM_SPIM_INTENSET_DRE_Msk;
-        }
-    }
     }
 
     return isRequestAccepted;

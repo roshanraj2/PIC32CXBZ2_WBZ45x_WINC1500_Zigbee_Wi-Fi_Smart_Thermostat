@@ -50,8 +50,8 @@
 #include <stdbool.h>
 #include "crypto/crypto.h"
 #include "peripheral/tc/plib_tc3.h"
-#include "peripheral/nvm/plib_nvm.h"
 #include "system/time/sys_time.h"
+#include "peripheral/nvm/plib_nvm.h"
 #include "peripheral/trng/plib_trng.h"
 #include "driver/spi/drv_spi.h"
 /*******************************************************************************

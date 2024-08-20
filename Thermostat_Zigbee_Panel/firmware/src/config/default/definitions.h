@@ -55,15 +55,6 @@
 #include "system/time/sys_time.h"
 #include "peripheral/trng/plib_trng.h"
 #include "driver/spi/drv_spi.h"
-#include "zigbee/z3device_configs/stackConfig.h"
-#include "zigbee/z3device_configs/zigbeeAppConfig.h"
-#include "zigbee/z3device/common/include/zgb_task.h"
-#include "zigbee/z3device/common/include/z3Device.h"
-#include "zigbee/lib/inc/pds/include/wlPdsMemIds.h"
-#include "zigbee/lib/inc/mac_phy/mac_hwd_phy/RF231_RF212/PHY/include/phyInit.h"
-#include "zigbee/lib/inc/systemenvironment/include/sysTaskManager.h"
-#include "configserver/include/configserver.h"
-#include "systemenvironment/include/sysSleep.h"
 /*******************************************************************************
 * Copyright (C) 2022 Microchip Technology Inc. and its subsidiaries.
 *
@@ -93,6 +84,15 @@
 #include "framework_defs.h"
 #include "app_idle_task.h"
 #include "device_deep_sleep.h"
+#include "zigbee/z3device_configs/stackConfig.h"
+#include "zigbee/z3device_configs/zigbeeAppConfig.h"
+#include "zigbee/z3device/common/include/zgb_task.h"
+#include "zigbee/z3device/common/include/z3Device.h"
+#include "zigbee/lib/inc/pds/include/wlPdsMemIds.h"
+#include "zigbee/lib/inc/mac_phy/mac_hwd_phy/RF231_RF212/PHY/include/phyInit.h"
+#include "zigbee/lib/inc/systemenvironment/include/sysTaskManager.h"
+#include "configserver/include/configserver.h"
+#include "systemenvironment/include/sysSleep.h"
 #include "system/int/sys_int.h"
 #include "system/ports/sys_ports.h"
 #include "system/cache/sys_cache.h"
@@ -100,7 +100,6 @@
 #include "system/debug/sys_debug.h"
 #include "peripheral/sercom/usart/plib_sercom2_usart.h"
 #include "peripheral/sercom/spi_master/plib_sercom1_spi_master.h"
-#include "peripheral/sercom/usart/plib_sercom0_usart.h"
 #include "peripheral/evsys/plib_evsys.h"
 /*******************************************************************************
 * Copyright (C) 2022 Microchip Technology Inc. and its subsidiaries.
@@ -126,6 +125,7 @@
 *******************************************************************************/
 #include "driver/pds/include/pds.h"
 #include "driver/pds/include/pds_config.h"
+#include "peripheral/sercom/usart/plib_sercom0_usart.h"
 #include "gfx/legato/generated/le_gen_harmony.h"
 #include "peripheral/clk/plib_clk.h"
 #include "peripheral/gpio/plib_gpio.h"

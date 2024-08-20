@@ -64,7 +64,7 @@ to factory defaults.
 /***************************************************************************//**
 \brief Thermostat Cluster server attributes amount
 *******************************************************************************/
-#define ZCL_THERMOSTAT_CLUSTER_SERVER_ATTRIBUTES_AMOUNT 27
+#define ZCL_THERMOSTAT_CLUSTER_SERVER_ATTRIBUTES_AMOUNT 26
 
 /***************************************************************************//**
 \brief Thermostat Cluster client attributes amount. Clinet doesn't have attributes

@@ -309,12 +309,6 @@ SYSTEM_OBJECTS sysObj;
 // Section: Library/Stack Initialization Data
 // *****************************************************************************
 // *****************************************************************************
-#define QUEUE_LENGTH_ZIGBEE (16)
-
-#define QUEUE_ITEM_SIZE_ZIGBEE (sizeof(void *))
-
-OSAL_QUEUE_HANDLE_TYPE zigbeeRequestQueueHandle;
-
 /*******************************************************************************
 * Copyright (C) 2022 Microchip Technology Inc. and its subsidiaries.
 *
@@ -340,6 +334,12 @@ OSAL_QUEUE_HANDLE_TYPE zigbeeRequestQueueHandle;
 
 OSAL_API_LIST_TYPE     osalAPIList;
 
+
+#define QUEUE_LENGTH_ZIGBEE (16)
+
+#define QUEUE_ITEM_SIZE_ZIGBEE (sizeof(void *))
+
+OSAL_QUEUE_HANDLE_TYPE zigbeeRequestQueueHandle;
 
 /*******************************************************************************
 * Copyright (C) 2022 Microchip Technology Inc. and its subsidiaries.
@@ -565,9 +565,9 @@ void SYS_Initialize ( void* data )
 
     SERCOM1_SPI_Initialize();
 
-    SERCOM0_USART_Initialize();
-
     EVSYS_Initialize();
+
+    SERCOM0_USART_Initialize();
 
     TCC2_PWMInitialize();
 
