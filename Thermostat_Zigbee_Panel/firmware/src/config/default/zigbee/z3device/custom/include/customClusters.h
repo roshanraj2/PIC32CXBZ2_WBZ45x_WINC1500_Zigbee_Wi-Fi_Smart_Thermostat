@@ -1,5 +1,5 @@
-#ifndef _CUSTOMCLUSTER_H
-#define _CUSTOMCLUSTER_H
+#ifndef CUSTOMCLUSTER_H
+#define CUSTOMCLUSTER_H
 
 /******************************************************************************
                     Includes section
@@ -9,9 +9,12 @@
 /******************************************************************************
                     Definitions section
 ******************************************************************************/
-#define CUSTOM_SERVER_CLUSTERS_COUNT     3+1
 
-#define CUSTOM_CLIENT_CLUSTERS_COUNT   7+1
+
+
+#define CUSTOM_SERVER_CLUSTERS_COUNT     3+1 
+ 
+#define CUSTOM_CLIENT_CLUSTERS_COUNT   7+1 
 
 #define CUSTOM_SERVER_CLUSTER_INIT_COUNT    CUSTOM_SERVER_CLUSTERS_COUNT
 
@@ -29,6 +32,6 @@ extern ClusterId_t customClientClusterIds[CUSTOM_CLIENT_CLUSTERS_COUNT];
 extern void (*customClientClusterInitFunctions[CUSTOM_CLIENT_CLUSTER_INIT_COUNT])();
 
 
-#endif // _CUSTOMCLUSTER_H
+#endif // CUSTOMCLUSTER_H
 
 // eof customClusters.h

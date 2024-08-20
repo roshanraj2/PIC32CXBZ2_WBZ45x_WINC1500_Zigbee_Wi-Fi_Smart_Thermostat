@@ -13,7 +13,6 @@
 * WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A
 * PARTICULAR PURPOSE.
  * 
-*
 * IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE,
 * INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND
 * WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS
@@ -65,6 +64,7 @@
 #include "app_winc/app_winc.h"
 #include "definitions.h"
 
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Global Data Definitions
@@ -76,6 +76,9 @@ extern void APP_UartHandler(void);
 extern void process_ZB_evt(void);
 extern void ZB_ZCL_CallBack(ZB_AppGenericCallbackParam_t* cb);
 extern ZDO_CALLBACK_ptr ZB_ZDO_CallBack[];
+
+
+
 
 // *****************************************************************************
 /* Application Data
@@ -168,6 +171,9 @@ void APP_Tasks ( void )
             bool appInitialized = true;
             //appData.appQueue = xQueueCreate( 10, sizeof(APP_Msg_T) );
             
+
+
+
             if (appInitialized)
             {
 

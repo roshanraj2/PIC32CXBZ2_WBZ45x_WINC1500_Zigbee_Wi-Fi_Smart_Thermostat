@@ -65,6 +65,7 @@
 #include <zcl/clusters/include/identifyCluster.h>
 #include <z3device/clusters/include/onOffCluster.h>
 
+
 /******************************************************************************
                     Defines section
 ******************************************************************************/
@@ -107,6 +108,9 @@ static void processTriggerAlarmCmd(const ScanValue_t *args);
 static void processSetAlarmMaskCmd(const ScanValue_t *args);
 static void processResetAlarms(const ScanValue_t *args);
 #endif // ZB_COMMISSIONING_ON_STARTUP == 0
+
+
+
 #endif // #if ZCL_COMMANDS_IN_CONSOLE == 1
 
 /******************************************************************************
@@ -210,6 +214,8 @@ PROGMEM_DECLARE(ConsoleCommand_t zclHelpCmds)[]=
   {"identify", "sddd", processIdentifyCmd, "->Send Identify command: identify [addrMode][addr][ep][idTime]\r\n"},
   {"identifyQuery", "sdd", processIdentifyQueryCmd, "->Send Identify Query command: identifyQuery [addrMode][addr][ep]\r\n"},
   {"triggerEffect", "sdddd", processTriggerEffectCmd, "->Send TriggerEffect command: triggerEffect [addrMode][addr][ep][effectId][effectVariant]"},
+
+  
 #endif // #if ZCL_COMMANDS_IN_CONSOLE == 1
   {0,0,0,0},
 };
@@ -255,10 +261,12 @@ static void processGetAppDeviceTypeCmd(const ScanValue_t *args)
 \param[in] args - array of command arguments
 ******************************************************************************/
 static void processSetOccupancyCmd(const ScanValue_t *args)
-{ 
+{
+#ifdef ZCL_THERMOSTAT_CLUSTER_INCLUDE_OPTIONAL_ATTRIBUTES 
   if (ZCL_SUCCESS_STATUS == thermostatSetOccupancy((ZCL_ThOccupancy_t)args[0].uint8))
     appSnprintf("Occupancy set to :%d\r\n",(ZCL_ThOccupancy_t)args[0].uint8);
   else
+#endif
     appSnprintf("Occupancy not set: Invalid value\r\n");
 }
 
@@ -499,7 +507,11 @@ static void processPiHeatingDemandCmd(const ScanValue_t *args)
   setPiHeatingDemand(args[0].uint8); 
 }
 #endif // ZB_COMMISSIONING_ON_STARTUP == 0
+
+
 #endif // ZCL_COMMANDS_IN_CONSOLE == 1 
+
+
 
 #endif // APP_ENABLE_CONSOLE == 1
 

@@ -54,10 +54,10 @@
 
 #if (MICROCHIP_APPLICATION_SUPPORT == 1)
 #include <bdb/include/bdbZllBindings.h>
-#include <zllplatform/zll/n_zdp/include/N_Zdp.h>
-#include <zllplatform/zll/n_zdp/include/N_Zdp_Bindings.h>
-#include <zllplatform/zll/n_cmi/include/N_Cmi.h>
-#include <zllplatform/zll/n_enddevicerobustness/include/N_EndDeviceRobustness.h>
+#include <zllplatform/ZLL/N_Zdp/include/N_Zdp.h>
+#include <zllplatform/ZLL/N_Zdp/include/N_Zdp_Bindings.h>
+#include <zllplatform/ZLL/N_Cmi/include/N_Cmi.h>
+#include <zllplatform/ZLL/N_EndDeviceRobustness/include/N_EndDeviceRobustness.h>
 #endif
 
 /******************************************************************************
@@ -84,6 +84,8 @@ static ZclOtauDiscoveryResult_t otauActiveServer = {
                    Global variables section
 ******************************************************************************/
 ZclOtauDiscoveryResult_t *actvServer = &otauActiveServer;
+ZclOtauDiscoveryResult_t  __attribute__((persistent))  backupOtauActiveServer;
+ZclOtauClientStateMachine_t __attribute__((persistent))  backupOtauStateMachine;
 
 /******************************************************************************
                    Implementation section
@@ -555,7 +557,7 @@ void otauRequestKeyReq(ExtAddr_t *tcExtAddr)
 ******************************************************************************/
 void otauStartDiscoveryTimer(void)
 {
-  uint32_t discoveryPeriod = 5000ul;
+  uint32_t discoveryPeriod = 5000UL;
   CS_ReadParameter(CS_ZCL_OTAU_DEFAULT_SERVER_DISCOVERY_PERIOD_ID, (void *)&discoveryPeriod);
 
   isOtauBusy = false;
@@ -588,6 +590,25 @@ void otauStartDiscovery(void)
   appOtauPrintf("OTAU: Starting Discovery\r\n");
   otauMatchDescReq(false,otauBroadcastMatchDescResp);
 }
+
+/***************************************************************************//**
+\brief backup server info incase of going to deep sleep
+******************************************************************************/
+void ZCL_BackupOtauparams(void)
+{
+    memcpy4ByteAligned(&backupOtauActiveServer, (uint8_t*)actvServer, sizeof(ZclOtauDiscoveryResult_t));
+    memcpy4ByteAligned(&backupOtauStateMachine, &otauStateMachine, sizeof(ZclOtauClientStateMachine_t));
+}
+
+/***************************************************************************//**
+\brief restore server info incase of going to deep sleep
+******************************************************************************/
+void ZCL_RestoreOtauparams(void)
+{
+    memcpy4ByteAligned((uint8_t*)actvServer, &backupOtauActiveServer, sizeof(ZclOtauDiscoveryResult_t));    
+    memcpy4ByteAligned(&otauStateMachine, &backupOtauStateMachine, sizeof(ZclOtauClientStateMachine_t));
+}
+
 #endif // (ZCL_SUPPORT == 1) && (APP_USE_OTAU == 1)
 
 //eof zclOtauClientDiscovery.c

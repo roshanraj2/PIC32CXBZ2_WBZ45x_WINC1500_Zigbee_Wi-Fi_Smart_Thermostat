@@ -87,7 +87,6 @@
 #include "system/cache/sys_cache.h"
 #include "osal/osal.h"
 #include "system/debug/sys_debug.h"
-#include "peripheral/sercom/spi_master/plib_sercom1_spi_master.h"
 #include "zigbee/z3device_configs/stackConfig.h"
 #include "zigbee/z3device_configs/zigbeeAppConfig.h"
 #include "zigbee/z3device/common/include/zgb_task.h"
@@ -96,6 +95,8 @@
 #include "zigbee/lib/inc/systemenvironment/include/sysTaskManager.h"
 #include "configserver/include/configserver.h"
 #include "systemenvironment/include/sysSleep.h"
+#include "peripheral/sercom/spi_master/plib_sercom1_spi_master.h"
+#include "peripheral/evsys/plib_evsys.h"
 /*******************************************************************************
 * Copyright (C) 2022 Microchip Technology Inc. and its subsidiaries.
 *
@@ -121,7 +122,6 @@
 #include "driver/pds/include/pds.h"
 #include "driver/pds/include/pds_config.h"
 #include "peripheral/sercom/usart/plib_sercom0_usart.h"
-#include "peripheral/evsys/plib_evsys.h"
 #include "driver/winc/include/wdrv_winc_api.h"
 #include "peripheral/clk/plib_clk.h"
 #include "peripheral/gpio/plib_gpio.h"
@@ -144,6 +144,12 @@ extern "C" {
 
 #endif
 // DOM-IGNORE-END
+
+/* Device Information */
+#define DEVICE_NAME			 "WBZ451"
+#define DEVICE_ARCH			 "CORTEX-M4"
+#define DEVICE_FAMILY		 "PIC32CX_BZ2"
+#define DEVICE_SERIES		 "BZ45"
 
 /* CPU clock frequency */
 #define CPU_CLOCK_FREQUENCY 64000000

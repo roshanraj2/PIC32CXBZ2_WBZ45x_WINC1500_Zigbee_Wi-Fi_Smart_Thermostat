@@ -55,6 +55,7 @@
 #include "app.h"
 #include "click_routines/oled_c/oled_c.h"
 #include "definitions.h"
+
 #include "app_zigbee/app_zigbee.h"
 #include "z3device/common/include/z3Device.h"
 #include "z3device/stack_interface/zgb_api.h"
@@ -68,6 +69,9 @@
 // Section: Global Data Definitions
 // *****************************************************************************
 // *****************************************************************************
+
+
+
 extern void process_UART_evt(char* cmdBuf);
 extern void APP_UartInit(void);
 extern void APP_UartHandler(void);

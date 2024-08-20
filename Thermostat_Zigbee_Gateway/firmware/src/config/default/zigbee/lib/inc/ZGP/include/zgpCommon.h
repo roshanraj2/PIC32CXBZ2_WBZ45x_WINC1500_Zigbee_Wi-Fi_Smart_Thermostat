@@ -39,8 +39,8 @@
 *******************************************************************************/
 // DOM-IGNORE-END
 
-#ifndef _ZGPCOMMON_H
-#define _ZGPCOMMON_H
+#ifndef ZGPCOMMON_H
+#define ZGPCOMMON_H
 
 /******************************************************************************
                            Includes section
@@ -546,6 +546,6 @@ typedef struct _ZgpExtNwkFrameControl_t
 END_PACK
 
 typedef uint32_t ZgpSourceId_t;
-#endif //_ZGPCOMMON_H
+#endif //ZGPCOMMON_H
 
 //eof zgpCommon.h

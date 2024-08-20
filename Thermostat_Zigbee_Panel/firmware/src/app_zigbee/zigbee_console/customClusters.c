@@ -66,6 +66,7 @@
 #include <z3device/custom/include/customCommissioningCluster.h>
 #include <z3device/custom/include/customDiagnosticsCluster.h>
 
+
 /******************************************************************************
                     Global variables
 ******************************************************************************/

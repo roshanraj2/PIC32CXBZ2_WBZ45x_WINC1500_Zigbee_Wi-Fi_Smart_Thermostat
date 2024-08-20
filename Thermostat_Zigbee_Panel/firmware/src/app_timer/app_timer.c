@@ -62,6 +62,7 @@
 extern void OccupiedCoolSP_ReadAttribute(void);
 extern void LocalTemp_ReadAttribute(void);
 
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Data Types

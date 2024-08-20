@@ -1,3 +1,4 @@
+
 /*******************************************************************************
   HAL AppClock Header File
 
@@ -44,8 +45,8 @@
  *   EXPERT USERS SHOULD PROCEED WITH CAUTION.                                *
  ******************************************************************************/
 
-#ifndef _HALAPPCLOCK_H
-#define _HALAPPCLOCK_H
+#ifndef HALAPPCLOCK_H
+#define HALAPPCLOCK_H
 
 /******************************************************************************
                    Includes section
@@ -61,20 +62,20 @@
 #define CPU_CLK_HZ 64000000
 #endif
 /** \brief system timer interval in ms */
-#define HAL_APPTIMERINTERVAL 10ul
+#define HAL_APPTIMERINTERVAL 10UL
 /** \brief frequency prescaler for system timer */
 #if ((CPU_CLK_HZ == 48000000) || (CPU_CLK_HZ == 64000000))
-  #define TIMER_FREQUENCY_PRESCALER            16
-  #define RTIMER_FREQUENCY_PRESCALER           16
-  #define AMOUNT_TIMER_CLOCK_IN_ONE_USEC       (APB_CLK_HZ/TIMER_FREQUENCY_PRESCALER/1000000ul)
-  #define AMOUNT_USEC_FOR_TIMER_CLOCK          (1000000ul/(APB_CLK_HZ/TIMER_FREQUENCY_PRESCALER))
-  #define AMOUNT_NSEC_FOR_TIMER_CLOCK          (1000000000ul/(APB_CLK_HZ/TIMER_FREQUENCY_PRESCALER))
+  #define TIMER_FREQUENCY_PRESCALER            16U
+  #define RTIMER_FREQUENCY_PRESCALER           16U
+  #define AMOUNT_TIMER_CLOCK_IN_ONE_USEC       (APB_CLK_HZ/TIMER_FREQUENCY_PRESCALER/1000000UL)
+  #define AMOUNT_USEC_FOR_TIMER_CLOCK          (1000000UL/(APB_CLK_HZ/TIMER_FREQUENCY_PRESCALER))
+  #define AMOUNT_NSEC_FOR_TIMER_CLOCK          (1000000000UL/(APB_CLK_HZ/TIMER_FREQUENCY_PRESCALER))
 //#else
 //  #error HAL Frequency is not selected
 #endif
 
 /** \brief timer counter top value */
-#define TOP_TIMER_COUNTER_VALUE  ((APB_CLK_HZ/1000ul) / TIMER_FREQUENCY_PRESCALER) * HAL_APPTIMERINTERVAL
+#define TOP_TIMER_COUNTER_VALUE  ((APB_CLK_HZ/1000UL) / TIMER_FREQUENCY_PRESCALER) * HAL_APPTIMERINTERVAL
 /** \brief Usable timer channel */
 #define HAL_TIMER_CHANNEL  0
 
@@ -94,6 +95,10 @@
 #define TCC2_INTFLAG   TCC2_REGS->TCC_INTFLAG
 #define TCC2_WAVE      TCC2_REGS->TCC_WAVE
 #define TCC2_STATUS    TCC2_REGS->TCC_STATUS
+/******************************************************************************
+                   External global variables section
+******************************************************************************/
+
 /******************************************************************************
                    Prototypes section
 ******************************************************************************/
@@ -143,5 +148,29 @@ void halDelayUs(uint16_t us);
   interval - time of sleep
 ******************************************************************************/
 void halAdjustSleepInterval(uint32_t interval);
+/**************************************************************************//**
+\brief Takes backup of current sys time
+
+\param[in]
+  interval - time of sleep
+******************************************************************************/
+void halBackupSystemTime(void);
+
+/**************************************************************************//**
+\brief restoring of current sys time
+
+\param[in]
+  interval - time of sleep
+******************************************************************************/
+void halRestoreSystemTime(void);
+
+/**************************************************************************//**
+\brief System clock.
+
+\return
+  system clock in Hz.
+******************************************************************************/
+uint32_t HAL_ReadFreq(void);
+
 #endif
 // eof halAppClock.h

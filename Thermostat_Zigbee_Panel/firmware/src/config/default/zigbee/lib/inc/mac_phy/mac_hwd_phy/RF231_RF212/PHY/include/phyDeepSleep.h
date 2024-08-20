@@ -39,8 +39,8 @@
 *******************************************************************************/
 // DOM-IGNORE-END
 
-#ifndef _PHYDEEPSLEEP_H
-#define _PHYDEEPSLEEP_H
+#ifndef PHYDEEPSLEEP_H
+#define PHYDEEPSLEEP_H
 
 /******************************************************************************
                                Prototypes section
@@ -64,17 +64,22 @@ void PHY_RestoreFromDeepSleep(void);
 /******************************************************************************
   \brief Prepare transceiver to Sleep mode.
  ******************************************************************************/
-void PHY_PrepareSleep(bool sysSleep);
+void PHY_PrepareSleep(void);
 
 /******************************************************************************
   \brief Restore transceiver from Sleep mode.
  ******************************************************************************/
-void PHY_RestoreFromSleep(bool sysSleep);
+void PHY_RestoreFromSleep(void);
 
 /******************************************************************************
   \brief BLE PWR Mng Utility for Sleep.
  ******************************************************************************/
 void PHY_BleRfPwrMgmt(uint8_t value , bool orAnd);
 
-#endif /* _PHYDEEPSLEEP_H */
+/******************************************************************************
+  \brief BLE Clock On or Off.
+ ******************************************************************************/
+void PHY_BLEClockOnOff(bool status);
+
+#endif /* PHYDEEPSLEEP_H */
 /** eof phyDeepSleep.h */

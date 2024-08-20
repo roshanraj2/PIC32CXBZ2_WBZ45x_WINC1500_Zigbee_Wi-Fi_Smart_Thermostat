@@ -39,8 +39,8 @@
 *******************************************************************************/
 // DOM-IGNORE-END
 
-#ifndef _MACENVMEM_H
-#define _MACENVMEM_H
+#ifndef MACENVMEM_H
+#define MACENVMEM_H
 
 /******************************************************************************
                     Includes section
@@ -61,7 +61,6 @@ typedef struct
 {
   uint8_t         channel;
   uint32_t        channelsSupported; // Just one row for current page.
-  uint8_t         txPowerRegion;
   int8_t          transmitPower;
   PHY_CcaMode_t   ccaMode;
   uint8_t         currentPage;
@@ -135,6 +134,6 @@ typedef struct
   PhyPibAttr_t phyAttr;
 } PIB_t;
 
-#endif /*_MACENVMEM_H*/
+#endif /*MACENVMEM_H*/
 
 // eof macphyPibMem.h

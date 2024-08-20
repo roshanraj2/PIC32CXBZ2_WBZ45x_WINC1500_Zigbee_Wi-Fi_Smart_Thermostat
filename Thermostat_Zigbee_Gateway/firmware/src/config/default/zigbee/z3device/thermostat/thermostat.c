@@ -70,6 +70,7 @@
 #include <zcl/include/zclOtauManager.h>
 #endif
 
+
 /******************************************************************************
                    Define(s) section
 ******************************************************************************/
@@ -81,7 +82,9 @@
 /*******************************************************************************
                     Static functions section
 *******************************************************************************/
+#if ZB_COMMISSIONING_ON_STARTUP == 1
 static void updateSensorsAttributeValues(void);
+#endif
 static void thFindingBindingFinishedForACluster(Endpoint_t ResponentEp, ClusterId_t id);
 static void thConfigureReportingResp(ZCL_Notify_t *ntfy);
 
@@ -147,13 +150,14 @@ static AppBindReq_t thBindReq =
 static ZCL_LinkKeyDesc_t thermostatKeyDesc = {APS_UNIVERSAL_EXTENDED_ADDRESS  /*addr*/,
                                          HA_LINK_KEY /*key*/};
 
+#if ZB_COMMISSIONING_ON_STARTUP == 1
 static HAL_AppTimer_t sensorAttributeUpdateTimer =
 {
   .interval = UPDATING_PERIOD,
   .mode     = TIMER_REPEAT_MODE,
   .callback = updateSensorsAttributeValues,
 };
-
+#endif
 /******************************************************************************
                     Implementation section
 ******************************************************************************/
@@ -300,7 +304,8 @@ static void thFindingBindingFinishedForACluster(Endpoint_t ResponentEp, ClusterI
          sendConfigureReportingToNotify(APP_ENDPOINT_THERMOSTAT, 0, 
                                       TEMPERATURE_MEASUREMENT_CLUSTER_ID, ZCL_TEMPERATURE_MEASUREMENT_CLUSTER_SERVER_MEASURED_VALUE_ATTRIBUTE_ID, 
                                       TEMPERATURE_MEASUREMENT_VAL_MAX_REPORT_PERIOD, thConfigureReportingResp);
-      break;   
+      break; 
+      
   }
 }
 

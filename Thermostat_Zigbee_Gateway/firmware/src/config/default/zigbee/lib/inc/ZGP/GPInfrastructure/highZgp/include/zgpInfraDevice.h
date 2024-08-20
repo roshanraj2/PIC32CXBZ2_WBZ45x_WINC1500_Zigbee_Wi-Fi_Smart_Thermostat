@@ -41,8 +41,8 @@
 // DOM-IGNORE-END
 
 // DOM-IGNORE-BEGIN
-#ifndef _ZGPINFRADEVICE_H
-#define _ZGPINFRADEVICE_H
+#ifndef ZGPINFRADEVICE_H
+#define ZGPINFRADEVICE_H
 
 #ifdef _GREENPOWER_SUPPORT_
 // DOM-IGNORE-END
@@ -334,6 +334,7 @@ typedef enum _ZGP_TransTableIndicationType_t
   APP_FUNCTIONALITY_CHECK = 0x00,
   ADD_TRANS_TABLE_ENTRY = 0x01,
   REMOVE_TRANS_TABLE_ENTRY = 0x02,
+  REMOVE_TRANS_TABLE_PAIRING = 0x03,
   ZGP_TRANS_TABLE_MAX_EVENTS
 } ZGP_TransTableIndicationType_t;
 
@@ -369,6 +370,13 @@ typedef struct PACK _ZGP_RemoveTransTableEntry_t
   ZGP_ApplicationId_t appId;
 } ZGP_RemoveTransTableEntry_t;
 
+typedef struct PACK _ZGP_RemoveTransTablePairingEntry_t
+{
+  ZGP_GpdId_t  gpdId;
+  uint8_t     *endPointList;
+  uint8_t      noOfEndPoints;
+} ZGP_RemoveTransTablePairingEntry_t;
+
 typedef struct _ZGP_TransTableIndicationInfo_t
 {
   ZGP_TransTableIndicationType_t transTableIndType;
@@ -377,6 +385,7 @@ typedef struct _ZGP_TransTableIndicationInfo_t
     ZGP_AppFuncCheckInfo_t appFuncCheckInfo;
     ZGP_AddTransTableEntry_t addTransTableEntry;
     ZGP_RemoveTransTableEntry_t removeTransTableEntry;
+    ZGP_RemoveTransTablePairingEntry_t removePairingEntry;
   } indicationData;
 } ZGP_TransTableIndicationInfo_t;
 
@@ -516,5 +525,5 @@ ZCL_Status_t ZGPH_SendCmdWithCallback(uint8_t sourceEndpoint,
 #endif
 
 #endif // _GREENPOWER_SUPPORT_
-#endif // _ZGPINFRADEVICE_H
+#endif // ZGPINFRADEVICE_H
 // eof zgpInfraDevice.h

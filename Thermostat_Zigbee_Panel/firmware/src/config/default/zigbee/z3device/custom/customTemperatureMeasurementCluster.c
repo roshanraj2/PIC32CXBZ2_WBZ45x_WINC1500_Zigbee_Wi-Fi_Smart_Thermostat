@@ -63,6 +63,9 @@ ZCL_TemperatureMeasurementClusterClientAttributes_t customTemperatureMeasurement
   ZCL_DEFINE_TEMPERATURE_MEASUREMENT_CLUSTER_CLIENT_ATTRIBUTES()
 };
 
+//###########################################################################
+
+
 /******************************************************************************
                     Local variables section
 ******************************************************************************/
@@ -107,6 +110,10 @@ static void customTemperatureMeasurementReportInd(ZCL_Addressing_t *addressing, 
 
   APP_Zigbee_Handler(event);
 }
+
+/*********************************************************************************
+*********************************************************************************/
+
 
 #endif
 // eof customTemperatureMeasurementCluster.c

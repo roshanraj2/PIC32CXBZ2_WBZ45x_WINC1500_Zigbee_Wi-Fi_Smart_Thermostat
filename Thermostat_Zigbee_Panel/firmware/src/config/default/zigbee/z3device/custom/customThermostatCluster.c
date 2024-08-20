@@ -79,6 +79,9 @@ ZCL_ThermostatClusterClientAttributes_t customThermostatClusterClientAttributes 
 };
 
 
+//###########################################################################
+
+
 
 /******************************************************************************
                     Local variables
@@ -182,6 +185,12 @@ void customSendSetpointRaiseLowerCommand(APS_AddrMode_t mode, ShortAddr_t addr, 
   fillDstAddressing(&req->dstAddressing, mode, addr, ep, THERMOSTAT_CLUSTER_ID);
   ZCL_CommandManagerSendCommand(req);
 }
+
+/*********************************************************************************
+*********************************************************************************/
+
+
+
 #endif // APP_DEVICE_TYPE_CUSTOM
 
 // eof customThermostatCluster.c

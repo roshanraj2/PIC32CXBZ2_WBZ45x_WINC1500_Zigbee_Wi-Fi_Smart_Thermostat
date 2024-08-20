@@ -41,8 +41,8 @@
 // DOM-IGNORE-END
 
 // DOM-IGNORE-BEGIN
-#ifndef _ZCL_H
-#define _ZCL_H
+#ifndef ZCL_H
+#define ZCL_H
 // DOM-IGNORE-END
 
 /******************************************************************************
@@ -618,6 +618,14 @@ typedef enum
   ZLO_IAS_ACE_DEVICE_ID                                 = 0x0401,
     /*! custom device id  */
   ZLO_CUSTOM_DEVICE_ID                                  = 0x0F00,  
+  /*! Shade Device */
+  ZLO_SHADE_DEVICE_ID                                   = 0x0200,
+  /*! Shade Controller */
+  ZLO_SHADE_CONTROLLER_DEVICE_ID                        = 0x0201,
+  /*! Window Covering Device */
+  ZLO_WINDOW_COVERING_DEVICE_ID                         = 0x0202,
+  /*! Window Covering Controller */
+  ZLO_WINDOW_COVERING_CONTROLLER_DEVICE_ID              = 0x0203,
 } ZLO_DeviceId_t;
 
 /** ZCL events' IDs */
@@ -1141,47 +1149,6 @@ typedef void (*ZCL_DefaultRespIndCallback_t)(ZCL_Request_t *req, ZCL_Addressing_
 typedef void (*ZCL_AttrEventIndCallback_t)(ZCL_Addressing_t *addressing, ZCL_AttributeId_t attributeId, ZCL_AttributeEvent_t event);
 typedef void (*ZCL_NotifyRespIndiCallback_t)(ZCL_Notify_t *ntfy);
 
-typedef struct _ZCL_CommandInd
-{
-  ZCL_CommandIndCallback_t callbackFn;
-  ZCL_Addressing_t *addressing;
-  uint8_t payloadLength;
-  uint8_t *payload;  
-  ZCL_Status_t status;
-} ZCL_CommandInd_t;
-
-typedef struct _ZCL_AttrReportInd
-{
-  ZCL_ReportIndCallback_t callbackFn;
-  ZCL_Addressing_t *addressing;
-  uint8_t payloadLength;
-  uint8_t *payload;
-} ZCL_AttrReportInd_t;
-
-typedef struct _ZCL_DefaultRespInd
-{
-  ZCL_DefaultRespIndCallback_t callbackFn;
-  ZCL_Request_t *req;
-  ZCL_Addressing_t *addressing;
-  uint8_t payloadLength;
-  uint8_t *payload;
-} ZCL_DefaultRespInd_t;
-
-typedef struct _ZCL_AttrEventInd
-{
-  ZCL_AttrEventIndCallback_t callbackFn;
-  ZCL_Addressing_t *addressing;
-  ZCL_AttributeId_t attributeId;
-  ZCL_AttributeEvent_t event;
-} ZCL_AttrEventInd_t;
-
-
-typedef struct _ZCL_NotifyRespInd
-{
-  ZCL_NotifyRespIndiCallback_t callbackFn;
-  ZCL_Notify_t *ntfy;
-} ZCL_NotifyRespInd_t;
-
 /******************************************************************************
                     Prototypes section
  ******************************************************************************/
@@ -1254,7 +1221,7 @@ void ZCL_NotifyRespInd(ZCL_NotifyRespIndiCallback_t callbackFn, ZCL_Notify_t *nt
  ***********************************************************************************/
 INLINE uint8_t getDstClusterSideByIncommingCommandDirection(uint8_t direction)
 {
-  return !direction;
+  return (direction == 1U) ? 0U : 1U;
 }
 
 /********************************************************************************//**
@@ -1265,7 +1232,7 @@ INLINE uint8_t getDstClusterSideByIncommingCommandDirection(uint8_t direction)
  ***********************************************************************************/
 INLINE uint8_t getSrcClusterSideByDstClusterSide(uint8_t clusterSide)
 {
-  return !clusterSide;
+    return (clusterSide == 1U) ? 0U : 1U;
 }
 
 /********************************************************************************//**
@@ -1276,7 +1243,7 @@ INLINE uint8_t getSrcClusterSideByDstClusterSide(uint8_t clusterSide)
  ***********************************************************************************/
 INLINE uint8_t getDstClusterSideBySrcClusterSide(uint8_t clusterSide)
 {
-  return !clusterSide;
+  return (clusterSide == 1U) ? 0U : 1U;
 }
 
 /********************************************************************************//**
@@ -1320,7 +1287,7 @@ INLINE uint8_t getDstClusterSideByOutgoingCommandDirection(uint8_t direction)
  ***********************************************************************************/
 INLINE uint8_t ZCL_GetIncomingCommandDirectionBySrcClusterSide(uint8_t clusterSide)
 {
-  return !clusterSide;
+  return (clusterSide == 1U) ? 0U : 1U;
 }
 
 /***************************************************************************//**
@@ -1685,7 +1652,7 @@ void ZCL_EventNtfy(ZCL_EventNtfy_t *event);
  *****************************************************************************/
 uint16_t ZCL_GetAttributeLength(uint8_t typeId, const uint8_t *value);
 
-/*************************************************************************//**
+/*****************************************************************************
   \brief Adds an element to the outgoing command payload
 
   \ingroup zcl_common
@@ -1713,10 +1680,10 @@ element.payload = buffer;
 element.id = ZCL_READ_ATTRIBUTES_COMMAND_ID;
 element.content = &readAttrReqElement;
 
-readAttrReqElement = ATTRIBUTE_ID1; //Set to the ID of the first attribute
+readAttrReqElement = ATTRIBUTE_ID1; Set to the ID of the first attribute
 ZCL_PutNextElement(&element);
 
-readAttrReqElement = ATTRIBUTE_ID2; //Set to the ID of the second attribute
+readAttrReqElement = ATTRIBUTE_ID2; Set to the ID of the second attribute
 ZCL_PutNextElement(&element);
 
 readAttrReq.requestLength = element.payloadLength;
@@ -1844,6 +1811,6 @@ void ZCL_ApsDataReq(APS_DataReq_t *req, bool apsSecurity);
  *****************************************************************************/
 void zclStopResponseWaitTimer(void);
 
-#endif //_ZCL_H
+#endif //ZCL_H
 
 //eof zcl.h

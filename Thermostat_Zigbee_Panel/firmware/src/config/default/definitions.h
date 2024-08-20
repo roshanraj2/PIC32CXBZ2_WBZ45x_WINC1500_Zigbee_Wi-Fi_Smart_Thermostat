@@ -49,12 +49,21 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "crypto/crypto.h"
-#include "peripheral/tc/plib_tc0.h"
 #include "peripheral/rtc/plib_rtc.h"
-#include "system/time/sys_time.h"
+#include "peripheral/tc/plib_tc0.h"
 #include "peripheral/nvm/plib_nvm.h"
+#include "system/time/sys_time.h"
 #include "peripheral/trng/plib_trng.h"
 #include "driver/spi/drv_spi.h"
+#include "zigbee/z3device_configs/stackConfig.h"
+#include "zigbee/z3device_configs/zigbeeAppConfig.h"
+#include "zigbee/z3device/common/include/zgb_task.h"
+#include "zigbee/z3device/common/include/z3Device.h"
+#include "zigbee/lib/inc/pds/include/wlPdsMemIds.h"
+#include "zigbee/lib/inc/mac_phy/mac_hwd_phy/RF231_RF212/PHY/include/phyInit.h"
+#include "zigbee/lib/inc/systemenvironment/include/sysTaskManager.h"
+#include "configserver/include/configserver.h"
+#include "systemenvironment/include/sysSleep.h"
 /*******************************************************************************
 * Copyright (C) 2022 Microchip Technology Inc. and its subsidiaries.
 *
@@ -83,14 +92,7 @@
 #include "driver/device_support/include/sleep_system.h"
 #include "framework_defs.h"
 #include "app_idle_task.h"
-#include "zigbee/z3device_configs/stackConfig.h"
-#include "zigbee/z3device_configs/zigbeeAppConfig.h"
-#include "zigbee/z3device/common/include/zgb_task.h"
-#include "zigbee/lib/inc/pds/include/wlPdsMemIds.h"
-#include "zigbee/lib/inc/mac_phy/mac_hwd_phy/RF231_RF212/PHY/include/phyInit.h"
-#include "zigbee/lib/inc/systemenvironment/include/sysTaskManager.h"
-#include "configserver/include/configserver.h"
-#include "systemenvironment/include/sysSleep.h"
+#include "device_deep_sleep.h"
 #include "system/int/sys_int.h"
 #include "system/ports/sys_ports.h"
 #include "system/cache/sys_cache.h"
@@ -148,6 +150,12 @@ extern "C" {
 
 #endif
 // DOM-IGNORE-END
+
+/* Device Information */
+#define DEVICE_NAME			 "WBZ451"
+#define DEVICE_ARCH			 "CORTEX-M4"
+#define DEVICE_FAMILY		 "PIC32CX_BZ2"
+#define DEVICE_SERIES		 "BZ45"
 
 /* CPU clock frequency */
 #define CPU_CLOCK_FREQUENCY 64000000

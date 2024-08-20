@@ -38,8 +38,6 @@
 // DOM-IGNORE-END
 
 #include "definitions.h"
-static BaseType_t zigbeeTaskAbortDelayReturn;
-extern TaskHandle_t zigbeeTaskHandle;
 void app_idle_task( void )
 {
     uint8_t PDS_Items_Pending = PDS_GetPendingItemsCount();
@@ -47,7 +45,7 @@ void app_idle_task( void )
 
     if (PDS_Items_Pending || RF_Cal_Needed)
     {
-        if (ZB_IsIdle())
+        if (1) // TODO: Modify to evaluate to true only if application is idle
         {
             if (PDS_Items_Pending)
             {
@@ -55,20 +53,13 @@ void app_idle_task( void )
             }
             else if (RF_Cal_Needed)
             {
-                RF_Timer_Cal(WSS_ENABLE_ZB);
+                   RF_Timer_Cal(WSS_ENABLE_ZB);
             }
         }
     }
 }
 
 
-/*
-    Devices which do not support Sleep needs to define this function.
-*/
-void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTime )
-{
-    (void) xExpectedIdleTime;    
-}
 
 
 /*-----------------------------------------------------------*/

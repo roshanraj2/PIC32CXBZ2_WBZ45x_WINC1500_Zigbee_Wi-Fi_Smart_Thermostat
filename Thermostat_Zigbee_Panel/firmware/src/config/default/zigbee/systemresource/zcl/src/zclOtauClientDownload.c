@@ -85,7 +85,6 @@ static void otauImageBlockIntervalElapseCB(void);
 static void otauImageBlockReq(void);
 static void otauImagePageReq(void);
 
-
 /******************************************************************************
                    Implementation section
 ******************************************************************************/
@@ -224,6 +223,7 @@ static void otauBlockResponseImageDataStoring(ZCL_OtauImageBlockResp_t *payload)
   tmpOfdParam->data = tmpOtauParam->receivedImgBlock;
   tmpOfdParam->length = payload->dataSize;
 
+#if !defined _PIC32CX_BZ3_
   /* Decrypt the packet before writing into the flash */
 
   /*Step 1: Set CBC key and IV*/
@@ -232,7 +232,7 @@ static void otauBlockResponseImageDataStoring(ZCL_OtauImageBlockResp_t *payload)
   memcpy(otauAesDecryptIV, &tmpOfdParam->data[tmpOfdParam->length - sizeof(otauAesDecryptIV)] , sizeof(otauAesDecryptIV));
   /* Step 3: Perfrom the decryption of the current image block */
   halAesCBC_Decrypt(tmpOfdParam->data, tmpOfdParam->length);
-
+#endif
   /*Step 4: Write the decrypted block into flash*/
   CS_ReadParameter(CS_ZCL_OTAU_MAX_RETRY_COUNT, &clientMem->ofdParam.ofdWriteRetry);
   otauStartGenericTimer(OTAU_CONTEXT_BREAK_QUICK_TIMEOUT ,otauStartWrite);
@@ -334,20 +334,25 @@ static void otauProcessImageBlockResponse (void)
   else if (true == otauImageIVRecovery)
   {
     otauImageIVRecovery = false;
-    memcpy(otauAesDecryptIV, clientMem->blockResp.imageData, sizeof(otauAesDecryptIV));
-    
-    otauSetImageUpgradeStatusAttr(OTAU_DOWNLOAD_IN_PROGRESS);
-    clientMem->imageAuxParam.requestFileOffset = clientMem->blockResp.fileOffset + clientMem->blockResp.dataSize;
-    clientMem->imageAuxParam.requestBlockSize = OTAU_MAX_REQ_BLOCK_SIZE;
-    clientMem->ofdParam.offset = OFD_SLOT2_IMAGE_START_ADDRESS + clientMem->imageAuxParam.requestFileOffset - sizeof(otauImageHeader);
-    #if APP_SUPPORT_OTAU_PAGE_REQUEST == 1
-    otauScheduleImagePageReq();
+    #if !defined _PIC32CX_BZ3_
+      memcpy(otauAesDecryptIV, clientMem->blockResp.imageData, sizeof(otauAesDecryptIV));
+      clientMem->imageAuxParam.requestFileOffset = clientMem->blockResp.fileOffset + clientMem->blockResp.dataSize;
     #else
-    otauScheduleImageBlockReq();
+      clientMem->imageAuxParam.requestFileOffset = ((((clientMem->blockResp.fileOffset + clientMem->blockResp.dataSize)/DRV_SST26_PAGE_SIZE)-1)*DRV_SST26_PAGE_SIZE)+sizeof(otauImageHeader);
+    #endif
+    otauSetImageUpgradeStatusAttr(OTAU_DOWNLOAD_IN_PROGRESS);
+    
+    clientMem->imageAuxParam.requestBlockSize = OTAU_MAX_REQ_BLOCK_SIZE;
+    clientMem->ofdParam.offset = OFD_IMAGE_START_ADDRESS + clientMem->imageAuxParam.requestFileOffset - sizeof(otauImageHeader);
+    #if APP_SUPPORT_OTAU_PAGE_REQUEST == 1
+      otauScheduleImagePageReq();
+    #else
+      otauScheduleImageBlockReq();
     #endif
     
     return;
   }
+
   else// its an image block
   {
     if (OTAU_CHECK_STATE(otauStateMachine, OTAU_GET_IMAGE_DOWNLOADING_STATE) && 
@@ -546,6 +551,10 @@ static void otauImageBlockReq(void)
   memcpy(&tmpOtauReq->firmwareVersion,&clientMem->newFirmwareVersion,sizeof(ZCL_OtauFirmwareVersion_t));
   tmpOtauReq->fileOffset                            = clientMem->imageAuxParam.requestFileOffset;
   tmpOtauReq->maxDataSize                           = clientMem->imageAuxParam.requestBlockSize;
+  if(otauClientAttributes.minimumBlockPeriod.value == 0U)
+  {
+      PDS_Restore(OTAU_MIN_BLOCK_PERIOD_ATTR_MEM_ID);
+  }
   tmpOtauReq->minimumBlockPeriod                    = otauClientAttributes.minimumBlockPeriod.value;
   ZCL_CommandReq(tmpZclReq);
   otauRestartBlockRxTimer();
@@ -556,6 +565,11 @@ static void otauImageBlockReq(void)
 ******************************************************************************/
 void otauScheduleImageBlockReq(void)
 {
+  //no need to go for sleeo during the OTAU procedure
+  if (!isOtauBusy)
+  {
+    isOtauBusy = true;
+  }
   /*Add a minimum delay for scheduling if the minimumBlockPeriod is set less than OTAU_MINIMUM_BLOCK_PERIOD*/
   if (otauClientAttributes.minimumBlockPeriod.value > OTAU_MINIMUM_BLOCK_PERIOD)
     otauStartGenericTimer(otauClientAttributes.minimumBlockPeriod.value, otauImageBlockReq);

@@ -37,10 +37,10 @@
 *******************************************************************************/
 // DOM-IGNORE-END
 
-#include "definitions.h"
 
 #define PDS_APP_MAX_ITEMS_AMOUNT        0
 #define PDS_APP_MAX_DIR_MEM_ID_AMOUNT   0
 
-#define MAX_PDS_ITEMS_COUNT         (PDS_APP_MAX_ITEMS_AMOUNT) + (PDS_ZB_MAX_ITEMS_AMOUNT)
-#define MAX_PDS_DIRECTORIES_COUNT   (PDS_APP_MAX_DIR_MEM_ID_AMOUNT) + (PDS_ZB_MAX_DIR_MEM_ID_AMOUNT)
+
+#define MAX_PDS_ITEMS_COUNT         (PDS_APP_MAX_ITEMS_AMOUNT)
+#define MAX_PDS_DIRECTORIES_COUNT   (PDS_APP_MAX_DIR_MEM_ID_AMOUNT)

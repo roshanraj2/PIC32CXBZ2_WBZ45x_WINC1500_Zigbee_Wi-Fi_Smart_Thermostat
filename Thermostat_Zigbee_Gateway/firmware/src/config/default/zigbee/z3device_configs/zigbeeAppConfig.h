@@ -39,8 +39,8 @@
 *******************************************************************************/
 // DOM-IGNORE-END
 
-#ifndef _APP_CONFIG_H_
-#define _APP_CONFIG_H_
+#ifndef APP_CONFIG_H
+#define APP_CONFIG_H
 
 #if !defined _USE_LIB_ || defined _SUPER_SET_LIB_
 #include "zigbeeAppDeviceSelect.h" 
@@ -102,7 +102,7 @@
 
 #else
 
-#define  ZIGBEE_COORDINATOR
+#define  ZIGBEE_ROUTER
 
 #if (APP_Z3_DEVICE_TYPE == APP_DEVICE_TYPE_COMBINED_INTERFACE)
 #if !defined(ZIGBEE_COORDINATOR)
@@ -121,7 +121,7 @@
 #define APP_JOIN_ATTEMPT_INTERVAL   3
 
 // Specifies maximum number of scenes that can be stored
-#define MAX_SCENES_AMOUNT 16u
+#define MAX_SCENES_AMOUNT (16U)
 
 #define APP_ENABLE_CONSOLE 1
 
@@ -237,22 +237,21 @@
 //ZB_COMMISSIONING_ON_STARTUP != 0
 //-----------------------------------------------
 #if (ZB_COMMISSIONING_ON_STARTUP != 0)
-#define APP_COMMISSIONING_FORMING 1
+#define APP_COMMISSIONING_FORMING 1U
   
-#define APP_COMMISSIONING_TOUCHLINK 0
+#define APP_COMMISSIONING_TOUCHLINK 0U
 
-#define APP_COMMISSIONING_STEERING 0
+#define APP_COMMISSIONING_STEERING 1U
 
 #define APP_COMMISSIONING_FINDING_AND_BINDING 1
 #endif
 
-#define TX_POWER_REGION    ETSI
-#define TX_POWER_REQ       0
-
+#define CS_RF_TX_POWER   3
+#define CS_TX_ANTENNA_GAIN    3
 
 #ifndef _USE_LIB_
 /* Bit Cloud Configurations*/
 #include <zigbee/z3device_configs/bitcloudPreInclude.h>
 #endif
 #include <zigbee/z3device_configs/stackConfig.h>
-#endif // _APP_CONFIG_H_
+#endif // APP_CONFIG_H

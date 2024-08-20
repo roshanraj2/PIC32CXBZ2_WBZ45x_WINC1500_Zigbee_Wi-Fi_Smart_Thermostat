@@ -39,8 +39,8 @@
 *******************************************************************************/
 // DOM-IGNORE-END
 
-#ifndef _CSDEFAULTS_H
-#define _CSDEFAULTS_H
+#ifndef CSDEFAULTS_H
+#define CSDEFAULTS_H
 
 /******************************************************************************
                     Includes section
@@ -228,7 +228,7 @@ be unique for each device in a network.
 <b>Can be set:</b> at any time before network start \n
 */
 #ifndef CS_UID
-#define CS_UID                                0x12152121bee
+#define CS_UID                                0
 #endif
 
 //! \brief The maximum duration in ms of frame transmission
@@ -411,10 +411,10 @@ over the amount of child devices possible for the node.
 <b>Can be set:</b> at compile time only \n
 */
 #ifndef CS_NEIB_TABLE_SIZE
-  #define CS_NEIB_TABLE_SIZE                  7
+  #define CS_NEIB_TABLE_SIZE                  (7)
 #elif CS_NEIB_TABLE_SIZE == 0
   #undef  CS_NEIB_TABLE_SIZE
-  #define CS_NEIB_TABLE_SIZE                  1
+  #define CS_NEIB_TABLE_SIZE                  (1)
   #warning  CS_NEIB_TABLE_SIZE was set to 1
 #endif
 
@@ -648,7 +648,7 @@ the frame is stored. Otherwise, the frame is dropped.
     #define CS_ENCRYPTION_TIME 119    // SW encryption
   #endif
 #else
-  #define CS_ENCRYPTION_TIME 0ul
+  #define CS_ENCRYPTION_TIME 0UL
 #endif
 #endif
 
@@ -1079,11 +1079,7 @@ stored for a certain period of time and then removed.
 <b>C-type:</b> uint8_t \n
 <b>Can be set:</b> at compile time only \n
 */
-#ifdef CS_NWK_BTT_SIZE
-#if (CS_NWK_BTT_SIZE < 9)
-#error BTT size should have a minimum value of 9
-#endif
-#else
+#if !defined CS_NWK_BTT_SIZE
   #define CS_NWK_BTT_SIZE                     9
 #endif
 
@@ -1367,7 +1363,7 @@ specify a value in the \c 0x123456789ABCDEFLL format. \n
 <b>Can be set:</b> at any time before network start \n
 */
 #ifndef CS_APS_TRUST_CENTER_ADDRESS
-#define CS_APS_TRUST_CENTER_ADDRESS           0xAAAAAAAAAAAAAAAALL
+#define CS_APS_TRUST_CENTER_ADDRESS           0xAAAAAAAAAAAAAAAAULL
 #endif
 
 //! \brief Default short address of the trust center
@@ -1750,7 +1746,7 @@ The parameter is valid only for OTAU clients.
 <b>Can be set:</b> at any time before an OTAU start \n
 */
 #ifndef CS_ZCL_OTAU_DEFAULT_UPGRADE_SERVER_IEEE_ADDRESS
-  #define CS_ZCL_OTAU_DEFAULT_UPGRADE_SERVER_IEEE_ADDRESS          0xFFFFFFFFFFFFFFFFull
+  #define CS_ZCL_OTAU_DEFAULT_UPGRADE_SERVER_IEEE_ADDRESS          0xFFFFFFFFFFFFFFFFULL
 #endif
 
 /** \brief The default OTAU image type to be upgraded
@@ -1774,7 +1770,7 @@ The parameter is valid only for OTAU clients.
 <b>Can be set:</b> at any time before an OTAU start \n
 */
 #ifndef CS_ZCL_OTAU_SERVER_DISCOVERY_PERIOD
-  #define CS_ZCL_OTAU_SERVER_DISCOVERY_PERIOD                      60000ul
+  #define CS_ZCL_OTAU_SERVER_DISCOVERY_PERIOD                      60000UL
 #endif
 /** \brief The interval in milliseconds between two attempts to send QueryNextImageRequest
 
@@ -1785,7 +1781,7 @@ The parameter is valid only for OTAU clients.
 <b>Can be set:</b> at any time before an OTAU start \n
 */
 #ifndef CS_ZCL_OTAU_QUERY_INTERVAL
-  #define CS_ZCL_OTAU_QUERY_INTERVAL                               5000ul
+  #define CS_ZCL_OTAU_QUERY_INTERVAL                               5000UL
 #endif
 /** \brief The number of maximum retry attempts for commands (OTAU cluster, ZDO and APS) used for OTAU
 
@@ -2189,9 +2185,9 @@ secondary Channel set Configuration
 #endif
 
 //! \brief secondary Channel mask
-/*!
+/*
 Max no. of Nodes to be stored in Trust Center node table
-//Increase it to accommodate more nodes in Centralized network
+Increase it to accommodate more nodes in Centralized network
 
 <b>C-type:</b> uint8_t \n
 <b>Can be set:</b> at compile time only \n
@@ -2238,6 +2234,18 @@ ARB_ZB_DYNAMIC_MODE  2  */
 #define CS_CERTIFICATION_FLAG        false
 #endif
 
+/** \brief Device deep sleep wakeup source  
+<b>C-type:</b> uint8_t \n
+<b>Can be set:</b> at compile time only \n*/
+/**
+DEVICE_DEEP_SLEEP_WAKE_NONE    0
+DEVICE_DEEP_SLEEP_WAKE_INT0    1
+DEVICE_DEEP_SLEEP_WAKE_RTC     2  */
+#ifndef CS_DEVICE_DEEP_SLEEP_WAKEUP_SRC
+#define CS_DEVICE_DEEP_SLEEP_WAKEUP_SRC    (0)
+#endif
+
+
 /**Enabling the touchlink related features
 <b>Value range:</b> \c true or \c false \n
 <b>Can be set:</b> at compile time only \n*/
@@ -2256,15 +2264,11 @@ CS_DEVICE_POWER_LPA    (0x0B)
 #define CS_DEVICE_POWER_TYPE    (0x0F)
 #endif
 
-/** \brief Device Power Region ID  
-<b>C-type:</b> uint8_t \n
+/** \brief Tx Antenna Gain  
+<b>C-type:</b> int8_t \n
 <b>Can be set:</b> at compile time only \n*/
-/**
-CS_DEVICE_POWER_REGION_ETSI  (0x00)
-CS_DEVICE_POWER_REGION_FCC   (0x01)
-*/
-#ifndef CS_DEVICE_POWER_REGION   
-#define CS_DEVICE_POWER_REGION    (0x00)
+#ifndef CS_TX_ANTENNA_GAIN   
+#define CS_TX_ANTENNA_GAIN    (0x03)
 #endif
 
 /******************************************************************************
@@ -2273,8 +2277,8 @@ CS_DEVICE_POWER_REGION_FCC   (0x01)
 
 typedef struct PACK
 {
-  uint8_t extMacDevAddrValid  :1;               /**< Set TRUE if extMacDevAddrValid field is valid. */
-  uint16_t antennaGainValid  :1;              /**< Set TRUE if antennaGain field is valid. */  
+  BitField_t extMacDevAddrValid  :1;               /**< Set TRUE if extMacDevAddrValid field is valid. */
+  BitField_t antennaGainValid  :1;              /**< Set TRUE if antennaGain field is valid. */  
 } ZB_CS_SYS_DataValidity_t;
 
 typedef struct PACK _ZB_CS_SYS_IBData_t
@@ -2295,7 +2299,7 @@ typedef struct PACK _ZB_CS_SYS_IBData_t
 ******************************************************************************/
 void csSetToDefault(ZB_CS_SYS_IBData_t *zgbIBdata);
 
-#endif  // _CSDEFAULTS_H
+#endif  // CSDEFAULTS_H
 /* eof cdDefaults.h*/
-_CSDEFAULTS_H
+CSDEFAULTS_H
 /* eof cdDefaults.h*/

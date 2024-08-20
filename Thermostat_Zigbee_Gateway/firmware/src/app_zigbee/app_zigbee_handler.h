@@ -39,8 +39,8 @@
 *******************************************************************************/
 // DOM-IGNORE-END
 
-#ifndef _APPZIGBEEHANDLER_H
-#define _APPZIGBEEHANDLER_H
+#ifndef APPZIGBEEHANDLER_H
+#define APPZIGBEEHANDLER_H
 
 // *****************************************************************************
 // *****************************************************************************
@@ -101,6 +101,8 @@ typedef enum
     CMD_SENSOR_OPEN,
     /* Sensor Event */
     CMD_SENSOR_READ,
+    /* Button Event */        
+    CMD_BUTTON_LONG_PRESS,
 
     /* Events in the Zigbee Group Event */
     /* Network joining/rejoining done*/
@@ -247,6 +249,9 @@ typedef enum
     CMD_ZCL_REPORTING_TEMPERATURE_MEASUREMENT,
   /* Command ZCL_HumdityMeasurementReportInd*/
     CMD_ZCL_REPORTING_HUMIDITY_MEASUREMENT,
+
+
+
 } APP_Zigbee_EventId_t;
 
 /*******************************************************************************
@@ -280,7 +285,7 @@ typedef union
     {
         ZCL_Addressing_t *addressing;
         uint8_t payloadLength;
-        uint8_t *payload;
+        void *payload;
     }zclEventData;
     struct
     {

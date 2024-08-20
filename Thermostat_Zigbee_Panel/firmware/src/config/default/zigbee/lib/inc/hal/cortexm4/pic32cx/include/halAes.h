@@ -49,7 +49,7 @@
  ******************************************************************************/
 #include <crypto.h>
 #include <systemenvironment/include/sysTypes.h>
-#include <hal/cortexm4/pic32cx/include/halAssert.h>
+#include <halAssert.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -147,6 +147,15 @@ void halAesSetKeyIV(const uint8_t *key, const uint8_t *iv);
   \return None.
  ******************************************************************************/
 void halAesCBC_Decrypt(uint8_t *text,uint32_t length);
+
+/**************************************************************************//**
+\brief Aes HAL Handling of request
+
+\param[out] None
+\param[in] None
+\return None
+******************************************************************************/
+void halSmRequestHandler (void);
 
 #ifdef __cplusplus
 }

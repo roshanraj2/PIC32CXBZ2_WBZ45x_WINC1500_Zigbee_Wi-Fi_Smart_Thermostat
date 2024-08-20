@@ -39,8 +39,8 @@
 *******************************************************************************/
 // DOM-IGNORE-END
 
-#ifndef _CSSIB_H_
-#define _CSSIB_H_
+#ifndef CSSIB_H_
+#define CSSIB_H_
 
 /******************************************************************************
                     Includes section
@@ -192,7 +192,7 @@ typedef struct _SIB_t
 {
   /* MAC parameters */
   uint32_t    csMacTransactionTime;
-  int8_t      csRfTxPowerRegion;  //Future Use.
+  int8_t      csRfTxAntennaGain;  //Future Use.
   int8_t      csRfTxPowerType;  
   int8_t      csRfTxPower;
   int8_t      csRfch26MaxTxPower;
@@ -270,5 +270,5 @@ uint16_t    csStackLeftThreshold;
   bool installCodeBasedJoinLinkKeyType;
 } SIB_t;
 
-#endif /* _CSSIB_H_ */
+#endif /* CSSIB_H_ */
 /* eof csSIB.h */

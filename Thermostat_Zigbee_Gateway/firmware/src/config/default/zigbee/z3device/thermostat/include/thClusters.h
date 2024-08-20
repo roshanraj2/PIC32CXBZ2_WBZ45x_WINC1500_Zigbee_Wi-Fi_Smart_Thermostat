@@ -39,8 +39,8 @@
 *******************************************************************************/
 // DOM-IGNORE-END
 
-#ifndef _THCLUSTERS_H
-#define _THCLUSTERS_H
+#ifndef THCLUSTERS_H
+#define THCLUSTERS_H
 
 /******************************************************************************
                     Includes section
@@ -50,9 +50,12 @@
 /******************************************************************************
                     Definitions section
 ******************************************************************************/
-#define TH_SERVER_CLUSTERS_COUNT     11
+
+
+
+#define TH_SERVER_CLUSTERS_COUNT     11 
 #ifdef OTAU_CLIENT
-  #define TH_CLIENT_CLUSTERS_COUNT   8
+  #define TH_CLIENT_CLUSTERS_COUNT   8 
 #else
   #define TH_CLIENT_CLUSTERS_COUNT   7 
 #endif
@@ -69,6 +72,6 @@ extern void (*thServerClusterInitFunctions[TH_SERVER_CLUSTER_INIT_COUNT])();
 extern ZCL_Cluster_t thClientClusters[TH_CLIENT_CLUSTERS_COUNT];
 extern ClusterId_t thClientClusterIds[TH_CLIENT_CLUSTERS_COUNT];
 extern void (*thClientClusterInitFunctions[TH_CLIENT_CLUSTER_INIT_COUNT])();
-#endif // _THCLUSTERS_H
+#endif // THCLUSTERS_H
 
 // eof thClusters.h

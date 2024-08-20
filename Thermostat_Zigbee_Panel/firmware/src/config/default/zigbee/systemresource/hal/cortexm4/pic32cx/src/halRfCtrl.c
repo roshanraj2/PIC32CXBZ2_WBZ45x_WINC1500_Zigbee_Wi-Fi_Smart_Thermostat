@@ -58,10 +58,10 @@
 /******************************************************************************
                    Define(s) section
 ******************************************************************************/
-#define RF_REGISTER_READ_ACCESS_MODE      0x80
-#define RF_REGISTER_TRX_STATUS_ADDRESS    0x01
-#define RF_TRX_OFF_STATE                  0x08
-#define RF_REGISTER_TRX_REG_ADDRESS       0x02
+#define RF_REGISTER_READ_ACCESS_MODE      0x80U
+#define RF_REGISTER_TRX_STATUS_ADDRESS    0x01U
+#define RF_TRX_OFF_STATE                  0x08U
+#define RF_REGISTER_TRX_REG_ADDRESS       0x02U
 
 #define RF_PHY_IRQn                       30
 /******************************************************************************
@@ -272,7 +272,10 @@ HalSysFreq_t HAL_GetRfFreq(void)
 ******************************************************************************/
 void halWaitRadio(void)
 {
-  while(RF_TRX_OFF_STATE != readTrxState());
+  while(RF_TRX_OFF_STATE != readTrxState())
+  {
+    /* Wait for radio to reach TRX_OFF */
+  }    
 }
 
 /**************************************************************************//**
@@ -314,6 +317,14 @@ void HAL_DisableRxTxSwitcher(void)
   #ifdef _HAL_RF_RX_TX_INDICATOR_
     phyRxTxSwitcherOff();
   #endif //_HAL_RF_RX_TX_INDICATOR_
+}
+
+/*******************************************************************************
+  Enables Transceiver clock
+*******************************************************************************/
+void HAL_EnableTransceiver(void)
+{
+  // todo
 }
 
 /**************************************************************************//**
@@ -360,7 +371,7 @@ void HAL_EnableTxAntennaDiversity(void)
 {/* Commented out as Tx antenna diversity is not required */
 /*  #ifdef _HAL_ANT_DIVERSITY_
     phyTxAntennaDiversity();
-  #endif //_HAL_ANT_DIVERSITY_
+  #endif _HAL_ANT_DIVERSITY_
 */
 }
 

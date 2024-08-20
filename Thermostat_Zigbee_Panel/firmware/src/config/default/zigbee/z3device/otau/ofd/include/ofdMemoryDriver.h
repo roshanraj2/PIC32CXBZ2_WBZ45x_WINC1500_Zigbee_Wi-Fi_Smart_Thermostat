@@ -18,8 +18,8 @@
  *   WARNING: CHANGING THIS FILE MAY AFFECT CORE FUNCTIONALITY OF THE STACK.  *
  *   EXPERT USERS SHOULD PROCEED WITH CAUTION.                                *
  ******************************************************************************/
-#ifndef _OFDMEMORYDRIVER_H
-#define _OFDMEMORYDRIVER_H
+#ifndef OFDMEMORYDRIVER_H
+#define OFDMEMORYDRIVER_H
 
 #if APP_USE_OTAU == 1
 
@@ -33,9 +33,15 @@
                    Define(s) section
 ******************************************************************************/
 /*Common Definitions*/
-#define OFD_SLOT2_IMAGE_START_ADDRESS   (0x01080000) // SLOT 2 start address 
-#define OFD_SLOT2_IMAGE_END_ADDRESS     (0x010fC000) 
-#define OFD_SLOT2_IMAGE_MAX_SIZE    (OFD_SLOT2_IMAGE_END_ADDRESS - OFD_SLOT2_IMAGE_START_ADDRESS)
+#if !defined _PIC32CX_BZ3_ 
+  #define OFD_IMAGE_START_ADDRESS    (0x01080000) // SLOT 2 start address 
+  #define OFD_IMAGE_END_ADDRESS     (0x010fC000) 
+  #define OFD_IMAGE_MAX_SIZE    (OFD_IMAGE_END_ADDRESS - OFD_IMAGE_START_ADDRESS)
+#else
+  #define OFD_IMAGE_START_ADDRESS   (0x00000000) // SLOT 2 start address 
+  #define OFD_IMAGE_END_ADDRESS     (0x00080000)
+  #define OFD_IMAGE_MAX_SIZE    (OFD_IMAGE_END_ADDRESS - OFD_IMAGE_START_ADDRESS)
+#endif
 
 #define OFD_LITTLE_TO_BIG_ENDIAN(A)  ((((uint32_t)A & 0xFFul) << 24)   \
                                    | (((uint32_t)A & 0xFF00ul) << 8)   \
@@ -168,4 +174,4 @@ been erased by OFD_EraseImage().
 void OFD_Read(uint32_t address, uint8_t *data, uint16_t size, OFD_Callback_t cb);
 #endif // APP_USE_OTAU == 1
 
-#endif /* _OFDMEMORYDRIVER_H */
+#endif /* OFDMEMORYDRIVER_H */

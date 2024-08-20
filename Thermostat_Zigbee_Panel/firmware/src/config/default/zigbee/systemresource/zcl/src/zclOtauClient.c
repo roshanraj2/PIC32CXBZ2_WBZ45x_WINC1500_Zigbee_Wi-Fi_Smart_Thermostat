@@ -94,10 +94,16 @@ ZCL_OtauClusterCommands_t otauClientCommands =
 
 DECLARE_QUEUE(zclOtauServerDiscoveryQueue);
 ExtAddr_t otauUnauthorizedServers[OTAU_MAX_UNAUTHORIZED_SERVERS];
-
+#if defined _PIC32CX_BZ3_
+bool eraseStatus;
+#endif
 /******************************************************************************
                         Static variables section
 ******************************************************************************/
+#if defined _PIC32CX_BZ3_
+static otauPageBuff_t otauClientBuff;
+static DRV_HANDLE sst26_hdl;
+#endif
 
 /******************************************************************************
                    External variables section
@@ -163,7 +169,6 @@ void otauProcessSuccessfullWritingToFlash(void)
         ZclOtauRecovery_t *recoveryParams = zclOtauGetRecoveryParams();
 
         recoveryParams->fileOffset = tmpAuxParam->requestFileOffset;
-
         PDS_Store(OTAU_RECOVERY_IMAGE_OFFSET_MEM_ID);
     }
 
@@ -179,22 +184,35 @@ void otauProcessSuccessfullWritingToFlash(void)
   {
     ZclOtauRecovery_t *recoveyParams = zclOtauGetRecoveryParams();
 
+#if !defined _PIC32CX_BZ3_ 
     clientMem->ofdParam.data = recoveyParams->image.metaHeader;
     clientMem->ofdParam.length = sizeof(recoveyParams->image.metaHeader);
-    clientMem->ofdParam.offset = OFD_SLOT2_IMAGE_START_ADDRESS;
+    clientMem->ofdParam.offset = OFD_IMAGE_START_ADDRESS;
+#else
+    clientMem->ofdParam.length = OTAU_MAX_REQ_BLOCK_SIZE;
+    clientMem->ofdParam.offset = tmpOfdParam->offset;
+#endif
+
     if (true == OFD_Write(&clientMem->ofdParam) )
     {
+      #if defined _PIC32CX_BZ3_ 
+      // Copy the 1st page from PDS and write it to externam flash
+        clientMem->ofdParam.data = recoveyParams->image.otauHeader;
+        otauExternalPageWrite(clientMem->ofdParam.data, OFD_IMAGE_START_ADDRESS);
+      #endif
         OTAU_SET_STATE(otauStateMachine, OTAU_WAIT_TO_UPGRADE_STATE);
         clientMem->otauUpgradeEndStatus = ZCL_SUCCESS_STATUS;
         appOtauPrintf("OTAU: Image Transferred Sucessfully\r\n");
         otauStartGenericTimer(UPGRADE_END_REQ_QUICK_TIMEOUT, otauUpgradeEndReq);
         return;
     }
+#if !defined _PIC32CX_BZ3_
     else
     {
         appOtauPrintf("OTAU: Image Transferred FAILED\r\n");
         otauAbortUpgradeProcess();
     }
+#endif
   }
   /*end of download completed*/
 
@@ -237,27 +255,49 @@ void otauProcessSuccessfullWritingToFlash(void)
 }
 
 static bool OFD_EraseImage(void )
-{
-    int pagesToBeErased = (OFD_SLOT2_IMAGE_MAX_SIZE / NVM_FLASH_PAGESIZE) - 1;
+{	
+	int pagesToBeErased = (OFD_IMAGE_MAX_SIZE / NVM_FLASH_PAGESIZE) - 1; 
+
     while (pagesToBeErased >= 0 )
     {
         while(NVM_IsBusy());
-        if (true != NVM_PageErase(OFD_SLOT2_IMAGE_START_ADDRESS + (pagesToBeErased * NVM_FLASH_PAGESIZE)))
+        if (true != NVM_PageErase(OFD_IMAGE_START_ADDRESS + (pagesToBeErased * NVM_FLASH_PAGESIZE)))
             return false;
         pagesToBeErased--;
     }
     return true;
 }
+
+#if defined _PIC32CX_BZ3_
+/***************************************************************************//**
+\brief get status of chip erase
+******************************************************************************/
+bool getEraseStatus(void)
+{
+  return eraseStatus;
+}
+#endif
+
 /***************************************************************************//**
 \brief Start erase image area
 ******************************************************************************/
 void otauStartErase(void)
 {
+#if defined _PIC32CX_BZ3_
+  DRV_HANDLE *handle = getSstHandle();
+  
+  //close SST handle everytime before SST initialize to prevent multiple initializations in negative scenarios.
+  DRV_SST26_Close(*handle);
+  //Initialze SST Driver
+  *handle = DRV_SST26_Open(sysObj.drvSST26, DRV_IO_INTENT_READWRITE);
+   //Erase the entire chip before writing to external flash
+  eraseStatus = DRV_SST26_ChipErase(*handle);
+#else //_PIC32CX_BZ2_
   if(OTAU_CHECK_STATE(otauStateMachine,OTAU_START_DOWNLOAD_STATE))
   {
     uint8_t flashErased[64];
     memset(flashErased,0xff,sizeof(flashErased));
-    if(memcmp(flashErased,(void *)OFD_SLOT2_IMAGE_START_ADDRESS, sizeof(flashErased)))
+    if(memcmp(flashErased,(void *)OFD_IMAGE_START_ADDRESS, sizeof(flashErased)))
     {
         // Slot 2 is not erased, erase it to continue
         appOtauPrintf("OTAU: Flash Erasing...\r\n");
@@ -277,6 +317,7 @@ void otauStartErase(void)
     zclRestartOtauClient();
   }
   return;
+#endif  
 }
 
 /***************************************************************************//**
@@ -402,7 +443,11 @@ void otauSomeRequestConfirm(ZCL_Notify_t *resp)
 void otauAbortUpgradeProcess(void)
 {
   ZCL_OtauClientMem_t *clientMem = zclGetOtauClientMem();
+#if !defined _PIC32CX_BZ3_
   uint8_t otauAesDecryptIV[AES_BLOCK_SIZE];
+  memset(&otauAesDecryptIV,0,AES_BLOCK_SIZE);
+  otauSetNewIV(otauAesDecryptIV);
+#endif
 
   SYS_E_ASSERT_ERROR(false, ZCL_OTAU_DOWNLOAD_ABORTED);
   clientMem->otauUpgradeEndStatus = ZCL_ABORT_STATUS;
@@ -420,8 +465,6 @@ void otauAbortUpgradeProcess(void)
   clientMem->otauParam.receivedImgBlockSize       = 0;
   clientMem->newFirmwareVersion.versionId         = 0;
   
-  memset(&otauAesDecryptIV,0,AES_BLOCK_SIZE);
-  otauSetNewIV(otauAesDecryptIV);
   setOtauIVrecovery(false);
 
   otauStartGenericTimer(AMOUNT_MSEC_IN_SEC,otauStartDiscoveryTimer);
@@ -437,7 +480,7 @@ void otauSomeDefaultResponse(ZCL_Request_t *req, ZCL_Addressing_t *addressing, u
   ZCL_DefaultResp_t *defaultResp = (ZCL_DefaultResp_t*)payload;
   ZCL_Request_t *tmpZclReq = &clientMem->reqMem.zclCommandReq;
 
-  appOtauPrintf("OTAU: DefaultResp->Req:%d, Status 0x%02x\r\n", tmpZclReq->id, defaultResp->statusCode);
+  /* Default responses. */
   switch(tmpZclReq->id)
   {
     case UPGRADE_END_REQUEST_ID:
@@ -590,7 +633,7 @@ void zclStartOtauClient(void)
 {
     ZclOtauMem_t *otauMem = zclGetOtauMem();
     ZCL_OtauClientMem_t *clientMem = zclGetOtauClientMem();
-
+    uint8_t  deepSleepWakeupSrc=0;
     CS_ReadParameter(CS_ZCL_OTAU_MAX_RETRY_COUNT_ID,&clientMem->retryCount);
     appOtauPrintf("Firmware version 0x%04x\r\n",CS_ZCL_OTAU_FILE_VERSION);
     otauClientAttributes.minimumBlockPeriod.value = ZCL_OTAU_DEFAULT_BLOCK_REQ_PERIOD;  // ZCL 6
@@ -600,22 +643,124 @@ void zclStartOtauClient(void)
     }
     isOtauBusy = false;
     otauMem->isOtauStopTriggered = false;
-    otauStartServerFinding();
+    CS_ReadParameter(CS_DEVICE_DEEP_SLEEP_WAKEUP_SRC_ID, &deepSleepWakeupSrc);
+    if(deepSleepWakeupSrc==0)//no wake from deep sleep
+    {
+      otauStartServerFinding();
+    }
     return;
 }
 
+#if defined _PIC32CX_BZ3_
+
+/***************************************************************************//**
+\brief Getter function for sst handle
+******************************************************************************/
+DRV_HANDLE * getSstHandle(void)
+{
+    return &sst26_hdl;
+}
+
+/***************************************************************************//**
+\brief Add elements to otau buffer
+******************************************************************************/
+bool otauCacheExternalFlashPage(otauPageBuff_t* clientBuffer, uint8_t* data, uint32_t* writeAddress, uint16_t blockLength)
+{
+    ZCL_OtauClientMem_t *clientMem = zclGetOtauClientMem();
+    OtauImageAuxVar_t *tmpAuxParam = &clientMem->imageAuxParam;
+    uint32_t  saddr,startaddress;
+    bool status;
+    uint16_t remainingDataLength = 0;
+    
+	//Check if there is no sufficient space in the buffer for the incoming block
+    if((DRV_SST26_PAGE_SIZE - clientBuffer->end) <= blockLength) 
+    {
+        uint16_t length = DRV_SST26_PAGE_SIZE - clientBuffer->end;
+        
+		//Copy portion of the incoming block that fits in the buffer
+        memcpy(&(clientBuffer->buff[clientBuffer->end]), data, length);
+        remainingDataLength = blockLength - length;
+        clientBuffer->end = DRV_SST26_PAGE_SIZE;
+        if((uint32_t)writeAddress <= DRV_SST26_PAGE_SIZE)
+        {
+          // Store the first page on to PDS
+          ZclOtauRecovery_t *recoveyParams = zclOtauGetRecoveryParams();
+          memcpy(recoveyParams->image.otauHeader,clientBuffer->buff,DRV_SST26_PAGE_SIZE);
+          PDS_Store(OTAU_RECOVERY_IMAGE_DETAILS_MEM_ID);
+        }
+        else
+          //Do a page write, since the buffer is full
+          status = otauExternalPageWrite(clientBuffer->buff, (uint32_t)writeAddress);
+        
+        clientBuffer->end = 0;
+        
+		//Copy the remaining portion of the incoming block into the reseted buffer
+        memcpy(&(clientBuffer->buff[clientBuffer->end]), (uint8_t* )(data+blockLength-remainingDataLength), remainingDataLength);
+        clientBuffer->end += remainingDataLength;
+        remainingDataLength = 0;
+        
+    }  else {
+		//Copy the entire incoming block into the buffer
+        memcpy(&(clientBuffer->buff[clientBuffer->end]), data, blockLength);
+        clientBuffer->end += blockLength;
+    }
+    
+    //Do a page write if the buffer is full or incoming block offset is the end of the image
+    if((clientBuffer->end == DRV_SST26_PAGE_SIZE) || (tmpAuxParam->requestFileOffset == tmpAuxParam->totalImageLength)) 
+    {         
+        clientBuffer->end = DRV_SST26_PAGE_SIZE;
+        if( (uint32_t)writeAddress > DRV_SST26_PAGE_SIZE)
+          status = otauExternalPageWrite(clientBuffer->buff, (uint32_t)writeAddress);
+        clientBuffer->end = 0;
+    }
+    
+    return status;
+}
+
+/***************************************************************************//**
+\brief start page write
+******************************************************************************/
+bool otauExternalPageWrite(uint8_t * otauDataBuffer, uint32_t writeAddress)
+ {
+    uint32_t pageWriteAddress = (writeAddress&0xFFFFFF00);
+    bool status;
+    DRV_HANDLE *handle = getSstHandle();
+    status = DRV_SST26_PageWrite(*handle,(uint8_t *)otauDataBuffer,(uint32_t )pageWriteAddress);
+    {
+    if(status == false)
+      appOtauPrintf("Otau Write failed \r\n");
+    }
+    while(DRV_SST26_TransferStatusGet(*handle) == DRV_SST26_TRANSFER_BUSY);
+    memset((void *)otauDataBuffer, 0xff , DRV_SST26_PAGE_SIZE);
+    return status;
+ }
+#endif
+
+
+/***************************************************************************//**
+\brief start ofd write
+******************************************************************************/
 bool OFD_Write(OFD_MemoryAccessParam_t *accessParam)
 {
     uint16_t n_QW, n_W, remain, i = 0;
     uint8_t *pData = (uint8_t *)accessParam->data;
     uint8_t *pAddress = (uint8_t*) accessParam->offset;
     uint16_t size = (uint16_t)accessParam->length;
-    
+    bool status;
     if(0 == size)
     {
         return false; // Nothing to write
     }
 
+#if defined _PIC32CX_BZ3_ 
+    ZCL_OtauClientMem_t *clientMem = zclGetOtauClientMem();
+    if (OFD_IMAGE_START_ADDRESS == clientMem->ofdParam.offset)
+    {
+      memset(&otauClientBuff.buff, 0xff , DRV_SST26_PAGE_SIZE);
+      otauClientBuff.end=0;
+    }
+    status = otauCacheExternalFlashPage(&otauClientBuff, (uint8_t *)pData, (uint32_t *)pAddress, size);
+#else
     if ((uint32_t)pAddress % NVM_QUAD_WORD_SIZE)
     {
       appSnprintf("Address offset is not 16 bytes aligned\r\n");
@@ -627,7 +772,7 @@ bool OFD_Write(OFD_MemoryAccessParam_t *accessParam)
       appSnprintf("Size is not 16 bytes aligned\r\n");
       return false;
     }
-    
+
     for(uint16_t i = 0; i < (size / NVM_QUAD_WORD_SIZE); i++)
     {
       while(NVM_IsBusy());
@@ -635,10 +780,12 @@ bool OFD_Write(OFD_MemoryAccessParam_t *accessParam)
       pAddress += NVM_QUAD_WORD_SIZE;
       pData += NVM_QUAD_WORD_SIZE;
     }
-
     while(NVM_IsBusy());
-    return true;
+      status = true;
+#endif
+    return status;
 }
+
 /***************************************************************************//**
 \brief Start write image part
 ******************************************************************************/
@@ -657,13 +804,15 @@ void otauStartWrite (void)
         Fix to eliminate erasing of partially downloaded image on reset by bootlader, skip the first image block write into flash
         instead store it in PDS, so we can write it to Flash once all the packets are received
       */
+#if !defined _PIC32CX_BZ3_ 
     ZclOtauRecovery_t *recoveyParams = zclOtauGetRecoveryParams();
-    if (OFD_SLOT2_IMAGE_START_ADDRESS == clientMem->ofdParam.offset)
+    if (OFD_IMAGE_START_ADDRESS == clientMem->ofdParam.offset)
     {
         // Store the first block on to PDS
         memcpy(recoveyParams->image.metaHeader,clientMem->ofdParam.data,clientMem->ofdParam.length);
         PDS_Store(OTAU_RECOVERY_IMAGE_DETAILS_MEM_ID);
     }
+#endif
     else if (true != OFD_Write(&clientMem->ofdParam) )
     {
         if(clientMem->ofdParam.ofdWriteRetry--)
